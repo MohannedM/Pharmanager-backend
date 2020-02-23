@@ -149,3 +149,35 @@ exports.updateMedicine = async function(req, res, next){
         next(error);
     }
 }
+
+exports.deleteMedicine = async function(req, res, next){
+    const medicineId = req.params.medicine_id;
+    try{
+        const fetchedMedicine = await Medicine.findById(medicineId);
+        if(!fetchedMedicine){
+            const error  = new Error("Medicine not found!");
+            error.statusCode = 400;
+            throw error;
+        }
+        if(fetchedMedicine.user.toString() !== req.userId){
+            const error  = new Error("Unauthorized!");
+            error.statusCode = 401;
+            throw error;
+        }
+        if(req.companyType !== 'supplier'){
+            const error  = new Error("Unauthorized");
+            error.statusCode = 401;
+            throw error;
+        }
+        const user = await User.findById(req.userId);
+        user.medicines.pull(medicineId);
+        await user.save();
+        await Medicine.findByIdAndRemove(medicineId);
+        return res.status(200).json({message: "Medicine Deleted Successfully"});
+    }catch(error){
+        if(!error.statusCode){
+            error.statusCode = 500;
+        }
+        next(error);
+    }
+}

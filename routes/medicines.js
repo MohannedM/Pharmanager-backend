@@ -20,6 +20,8 @@ router.put('/medicines/:medicine_id', [
     check("quantity").trim().isLength({min: 1, max: 10})
 ], isAuth, medicinesController.updateMedicine);
 
+router.delete("/medicines/:medicine_id", isAuth, medicinesController.deleteMedicine);
+
 router.get("/medicines", isAuth, medicinesController.getMedicines);
 
 module.exports = router;
