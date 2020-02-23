@@ -14,7 +14,11 @@ module.exports = (req, res, next) => {
     if(!decodedToken){
         errorThrower();
     }
-    console.log(decodedToken)
+    const tokenExpiration = new Date(decodedToken.exp * 1000).getTime(); 
+    const currentDate = new Date().getTime();
+    if(currentDate > tokenExpiration){
+        errorThrower();
+    }
     req.userId = decodedToken.userId;
     req.companyType = decodedToken.companyType;
 
