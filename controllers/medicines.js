@@ -69,8 +69,8 @@ exports.createMedicine = async function(req, res, next){
 }
 
 exports.getMedicines = async function(req, res, next){
-    let page = req.query.page || 1;
-    const perPage = 9;
+    // let page = req.query.page || 1;
+    // const perPage = 9;
     try{
         // const medicines = await Medicine.find().skip((page - 1) * perPage).limit(perPage);
         // const user = {medicines};
@@ -180,4 +180,27 @@ exports.deleteMedicine = async function(req, res, next){
         }
         next(error);
     }
+}
+
+exports.getMedicinesMarket = async function(req, res, next){
+    const page = req.query.page || 1;
+    const perPage = 9;
+
+    try{
+        if(req.companyType !== "pharmacy"){
+            const error = new Error("Unauthorized!");
+            error.statusCode = 401;
+            throw error;
+        }
+        const fetchedMedicines = await Medicine.find().populate('user').sort([['createdAt','desc']]).skip((page - 1) * perPage).limit(perPage);
+        const totalMedicinesCount = await Medicine.find().countDocuments();
+        return res.status(200).json({medicines:fetchedMedicines, totalMedicinesCount})
+
+    }catch(error){
+        if(!error.statusCode){
+            error.statusCode = 500;
+        }
+        next(error);
+    }
+    
 }

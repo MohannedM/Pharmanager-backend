@@ -24,4 +24,6 @@ router.delete("/medicines/:medicine_id", isAuth, medicinesController.deleteMedic
 
 router.get("/medicines", isAuth, medicinesController.getMedicines);
 
+router.get("/order/medicines", isAuth, medicinesController.getMedicinesMarket);
+
 module.exports = router;
