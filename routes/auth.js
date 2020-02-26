@@ -8,8 +8,8 @@ router.post("/signup", [
     check('name').trim().isLength({min: 6, max: 25}),
     check('companyType').trim().isLength({min: 7, max: 9}).custom(val => val === 'pharmacy' || val === 'supplier' ? Promise.resolve() : Promise.reject("Type is either pharamcy or supplier")),
     check('password').trim().isLength({min: 6, max: 25}),
-    check('companyName').trim().isLength({min: 6, max: 25}),
-    check('companyAddress').trim().isLength({min: 6, max: 25}),
+    check('companyName').trim().isLength({min: 4, max: 25}),
+    check('companyAddress').trim().isLength({min: 6, max: 50}),
     check('companyNumber').trim().isLength({min: 4, max: 25})
 ], authController.signup);
 

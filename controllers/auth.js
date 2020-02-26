@@ -44,7 +44,7 @@ exports.signup = async function (req, res, next){
             companyNumber
         });
         const savedUser = await newUser.save();
-        const token = jwt.sign({userid: savedUser._id.toString(), email: savedUser.email, companyType: savedUser.companyType}, 'thesupersecret', {expiresIn: '1h'});
+        const token = jwt.sign({userId: savedUser._id.toString(), email: savedUser.email, companyType: savedUser.companyType}, 'thesupersecret', {expiresIn: '1h'});
         return res.status(201).json({message: "User created successfully", userData: {
             name: savedUser.name, 
             email: savedUser.email,

@@ -23,7 +23,7 @@ exports.createMedicine = async function(req, res, next){
             error.statusCode = 401;
             throw error;
         }
-        const medicineByName = await Medicine.findOne({name});
+        const medicineByName = await Medicine.findOne({name, user: req.userId});
         if(medicineByName){
             const error  = new Error("You have already added a medicine with the same name.");
             error.statusCode = 400;
@@ -74,6 +74,17 @@ exports.getMedicines = async function(req, res, next){
     try{
         // const medicines = await Medicine.find().skip((page - 1) * perPage).limit(perPage);
         // const user = {medicines};
+        // const user = await User.findById(req.userId).populate({
+        //     populate:{
+        //         path: 'medicines',
+        //         model: 'Medicine'
+        //     }, 
+        //     options: {
+        //         sort: [['createdAt','desc']],
+        //         skip: (page - 1) * perPage,
+        //         limit: perPage 
+        //     }
+        // });
         const user = await User.findById(req.userId).populate('medicines');
         if(!user){
             const error  = new Error("User not found!");
@@ -116,7 +127,7 @@ exports.updateMedicine = async function(req, res, next){
             error.statusCode = 401;
             throw error;
         }
-        const medicineByName = await Medicine.findOne({name});
+        const medicineByName = await Medicine.findOne({name, user: req.userId});
         if(medicineByName && name !== fetchedMedicine.name){
             const error  = new Error("You have already added a medicine with the same name.");
             error.statusCode = 400;
