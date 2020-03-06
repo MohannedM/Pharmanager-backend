@@ -5,6 +5,7 @@ const mongoose = require("mongoose");
 const app = express();
 const authRoutes = require("./routes/auth");
 const medicinesRoutes = require("./routes/medicines");
+const cartRoutes = require("./routes/cart");
 
 app.use(bodyparser.json());
 
@@ -17,6 +18,7 @@ app.use((req,res,next)=>{
 
 app.use(authRoutes);
 app.use(medicinesRoutes);
+app.use(cartRoutes);
 
 app.use((error, req, res, next)=>{
     const status = error.statusCode || 500;
