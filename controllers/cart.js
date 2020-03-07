@@ -39,7 +39,7 @@ exports.createPurchase = async function(req, res, next){
             updatedAt: fetchedMedicine.updatedAt.toISOString(),
             purchasedQuantity: quantity   
         },
-        _id: savedCart._id.toString() 
+        _id: savedCart.medicines[savedCart.medicines.length - 1]._id.toString()
     }); 
     }catch(error){
         if(!error.statusCode){
@@ -81,6 +81,7 @@ exports.deleteCartItem = async function(req, res, next){
         await cart.save();
         return res.status(200).json({success: "Ok", message: "Cart item deleted successfully!"});
     }catch(error){
+        console.log(error)
         if(!error.statusCode){
             error.statusCode = 500;
         }
