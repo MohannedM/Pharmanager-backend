@@ -36,9 +36,9 @@ exports.createPurchase = async function(req, res, next){
             ...fetchedMedicine._doc,
             _id: fetchedMedicine._id.toString(),
             createdAt: fetchedMedicine.createdAt.toISOString(),
-            updatedAt: fetchedMedicine.updatedAt.toISOString(),
-            purchasedQuantity: quantity   
+            updatedAt: fetchedMedicine.updatedAt.toISOString() 
         },
+        quantity: +quantity,
         _id: savedCart.medicines[savedCart.medicines.length - 1]._id.toString()
     }); 
     }catch(error){
@@ -81,7 +81,24 @@ exports.deleteCartItem = async function(req, res, next){
         await cart.save();
         return res.status(200).json({success: "Ok", message: "Cart item deleted successfully!"});
     }catch(error){
-        console.log(error)
+        if(!error.statusCode){
+            error.statusCode = 500;
+        }
+        next(error);
+    }
+}
+
+exports.deleteCart = async function(req, res, next){
+    try{
+        const user = await User.findById(req.userId);
+        if(!user || req.companyType !== 'pharmacy' || user.companyType !== 'pharmacy'){
+            const error = new Error("Unauthorized!");
+            error.statusCode = 401;
+            throw error;
+        }
+        await Cart.findOneAndDelete({user: req.userId});
+        return res.status(200).json({success: "Ok", message: "Cart deleted successfully!"});
+    }catch(error){
         if(!error.statusCode){
             error.statusCode = 500;
         }

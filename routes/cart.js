@@ -10,5 +10,7 @@ router.get("/cart", isAuth, cartController.getCart);
 
 router.delete("/cart/:cart_item_id", isAuth, cartController.deleteCartItem);
 
+router.delete("/cart", isAuth, cartController.deleteCart);
+
 
 module.exports = router;
