@@ -8,17 +8,19 @@ const cartSchema = new Schema({
         ref: 'User',
         required: true
     },
-    medicines: [{
-        medicine: {
-        type: mongoose.Types.ObjectId,
-        ref: 'Medicine',
-        required: true
-    },
-    quantity: {
-        type: Number,
-        required: true
-    }
-}]
+    medicines: [
+        {
+            medicine: {
+                type: mongoose.Types.ObjectId,
+                ref: 'Medicine',
+                required: true
+            },
+            quantity: {
+                type: Number,
+                required: true
+            }
+        }
+    ]
 }, {timestamps: true});
 
 module.exports = mongoose.model('Cart', cartSchema);
