@@ -1,6 +1,7 @@
 const Order = require("../modules/order");
 const User = require("../modules/user");
 const Cart = require("../modules/cart");
+const Medicine = require("../modules/medicine");
 
 exports.createOrder = async function(req, res, next){
     try{
@@ -32,10 +33,20 @@ exports.createOrder = async function(req, res, next){
             for(let i = 0; obj[supId].length > i; i++){
                 medicines.push({medicine: obj[supId][i].medicine, quantity: obj[supId][i].quantity});
                 orderPrice += obj[supId][i].totalPrice
+                const fetchedMedicine = await Medicine.findById(obj[supId][i].medicine);
+                fetchedMedicine.quantity -= obj[supId][i].quantity;
+                if(fetchedMedicine.quantity < obj[supId][i].quantity){
+                    const error = new Error("Quantity ordered is more than the quantity available!")
+                    error.statusCode(400);
+                    throw error;
+                }
+                // user.medicines.push()
+                await fetchedMedicine.save();
             }
             order.medicines = medicines;
             order.orderPrice = orderPrice;
             await order.save();
+            await Cart.findByIdAndDelete(req.body.cartId);
         }
         return res.status(201).json({success: 'Ok'});
     }catch(err){

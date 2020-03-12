@@ -31,15 +31,25 @@ exports.createPurchase = async function(req, res, next){
         }
         cart.medicines.push({medicine: medicineId, quantity});
         const savedCart = await cart.save();
-        res.status(201).json({message: "Medicine(s) added to cart successfully!",
-        medicine:{
-            ...fetchedMedicine._doc,
-            _id: fetchedMedicine._id.toString(),
-            createdAt: fetchedMedicine.createdAt.toISOString(),
-            updatedAt: fetchedMedicine.updatedAt.toISOString() 
-        },
-        quantity: +quantity,
-        _id: savedCart.medicines[savedCart.medicines.length - 1]._id.toString()
+        await savedCart
+        const fetchedCart = await Cart.findById(savedCart._id).populate("medicines.medicine");
+        res.status(201).json({
+            message: "Medicine(s) added to cart successfully!",
+            // medicine:{
+            //     ...fetchedMedicine._doc,
+            //     _id: fetchedMedicine._id.toString(),
+            //     createdAt: fetchedMedicine.createdAt.toISOString(),
+            //     updatedAt: fetchedMedicine.updatedAt.toISOString() 
+            // },
+            // quantity: +quantity,
+            // medicineId: savedCart.medicines[savedCart.medicines.length - 1]._id.toString(),
+            // _id: savedCart._id.toString()
+            cart: {
+                ...fetchedCart._doc,
+                _id: fetchedCart._id.toString(),
+                createdAt: fetchedCart.createdAt.toISOString(),
+                updatedAt: fetchedCart.updatedAt.toISOString(),
+            }
     }); 
     }catch(error){
         if(!error.statusCode){
@@ -59,7 +69,17 @@ exports.getCart = async function(req, res, next){
             throw error;
         }
         const cart = await Cart.findOne({user: req.userId}).populate('medicines.medicine');
-        res.status(200).json({cart});
+        if(cart){
+            return res.status(200).json({
+                cart: {
+                    ...cart._doc,
+                    _id: cart._id.toString(),
+                    createdAt: cart.createdAt.toISOString(),
+                    updatedAt: cart.updatedAt.toISOString(),
+                }
+            });
+        }
+        return res.status(200).json({success: 'No products in cart'});
     }catch(error){
         if(!error.statusCode){
             error.statusCode = 500;
