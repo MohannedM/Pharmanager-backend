@@ -56,3 +56,23 @@ exports.createOrder = async function(req, res, next){
         next(err);
     }
 }
+
+exports.getOrders = async function(req, res, next){
+    try{
+        const user = await User.findById(req.userId);
+        if(!user){
+            const error = new Error("Unauthorized");
+            error.statusCode = 404;
+            throw error;
+        }
+        let condition = user.companyType === "pharmacy" ? {pharmacy: req.userId} : {supplier: req.userId};
+        let populating = user.companyType === "supplier" ? "pharmacy" : "supplier";
+        let orders = await Order.find(condition).populate(populating, "companyName").populate("medicines.medicine");
+        return res.status(200).json({orders})
+    }catch(error){
+        if(!error.statusCode){
+            error.statusCode = 500;
+        }
+        next(error);
+    }
+}
