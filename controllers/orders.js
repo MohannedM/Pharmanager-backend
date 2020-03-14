@@ -58,6 +58,8 @@ exports.createOrder = async function(req, res, next){
 }
 
 exports.getOrders = async function(req, res, next){
+    const page = req.query.page || 1;
+    const perPage = 5;
     try{
         const user = await User.findById(req.userId);
         if(!user){
@@ -67,8 +69,9 @@ exports.getOrders = async function(req, res, next){
         }
         let condition = user.companyType === "pharmacy" ? {pharmacy: req.userId} : {supplier: req.userId};
         let populating = user.companyType === "supplier" ? "pharmacy" : "supplier";
-        let orders = await Order.find(condition).populate(populating, "companyName").populate("medicines.medicine");
-        return res.status(200).json({orders})
+        let ordersTotalCount = await Order.find().countDocuments(condition);
+        let orders = await Order.find(condition).populate(populating, "companyName").populate("medicines.medicine").skip((page - 1) * perPage).limit(perPage);
+        return res.status(200).json({orders, totalCount: ordersTotalCount})
     }catch(error){
         if(!error.statusCode){
             error.statusCode = 500;
