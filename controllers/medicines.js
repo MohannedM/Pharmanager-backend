@@ -51,7 +51,7 @@ exports.createMedicine = async function(req, res, next){
         });
     
         const savedMedicine = await medicine.save();
-        user.medicines.push(savedMedicine._id);
+        user.medicines.push({medicine: savedMedicine._id});
         await user.save();
         return res.status(201).json({message: "Medicine created successfully.", medicine: {
             ...savedMedicine._doc,
@@ -85,7 +85,7 @@ exports.getMedicines = async function(req, res, next){
         //         limit: perPage 
         //     }
         // });
-        const user = await User.findById(req.userId).populate('medicines');
+        const user = await User.findById(req.userId).populate('medicines.medicine');
         if(!user){
             const error  = new Error("User not found!");
             error.statusCode = 401;
@@ -163,9 +163,10 @@ exports.updateMedicine = async function(req, res, next){
 
 exports.deleteMedicine = async function(req, res, next){
     const medicineId = req.params.medicine_id;
+    const userMedicineId = req.query.user_medicine_id;
     try{
         const fetchedMedicine = await Medicine.findById(medicineId);
-        if(!fetchedMedicine){
+        if(!fetchedMedicine || !userMedicineId){
             const error  = new Error("Medicine not found!");
             error.statusCode = 400;
             throw error;
@@ -181,7 +182,7 @@ exports.deleteMedicine = async function(req, res, next){
             throw error;
         }
         const user = await User.findById(req.userId);
-        user.medicines.pull(medicineId);
+        user.medicines.pull({_id: userMedicineId});
         await user.save();
         await Medicine.findByIdAndRemove(medicineId);
         return res.status(200).json({message: "Medicine Deleted Successfully"});

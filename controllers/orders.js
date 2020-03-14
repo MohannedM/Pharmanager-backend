@@ -31,7 +31,7 @@ exports.createOrder = async function(req, res, next){
                 pharmacy: req.userId
             });
             for(let i = 0; obj[supId].length > i; i++){
-                medicines.push({medicine: obj[supId][i].medicine, quantity: obj[supId][i].quantity});
+                medicines.push({medicine: obj[supId][i].medicine, quantity: +obj[supId][i].quantity});
                 orderPrice += obj[supId][i].totalPrice
                 const fetchedMedicine = await Medicine.findById(obj[supId][i].medicine);
                 fetchedMedicine.quantity -= obj[supId][i].quantity;
@@ -40,7 +40,8 @@ exports.createOrder = async function(req, res, next){
                     error.statusCode(400);
                     throw error;
                 }
-                // user.medicines.push()
+                user.medicines.push(...medicines);
+                await user.save();
                 await fetchedMedicine.save();
             }
             order.medicines = medicines;
@@ -70,7 +71,7 @@ exports.getOrders = async function(req, res, next){
         let condition = user.companyType === "pharmacy" ? {pharmacy: req.userId} : {supplier: req.userId};
         let populating = user.companyType === "supplier" ? "pharmacy" : "supplier";
         let ordersTotalCount = await Order.find().countDocuments(condition);
-        let orders = await Order.find(condition).populate(populating, "companyName").populate("medicines.medicine").skip((page - 1) * perPage).limit(perPage);
+        let orders = await Order.find(condition).populate(populating, "companyName").populate("medicines.medicine").skip((page - 1) * perPage).limit(perPage).sort({createdAt: -1});
         return res.status(200).json({orders, totalCount: ordersTotalCount})
     }catch(error){
         if(!error.statusCode){

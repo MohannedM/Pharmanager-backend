@@ -31,8 +31,13 @@ const userSchema = new Schema({
         required: true
     },
     medicines: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Medicine'
+        medicine: {
+            type: Schema.Types.ObjectId,
+            ref: 'Medicine'
+        },
+        quantity: {
+            type: Number
+        }
     }]
 });
 
